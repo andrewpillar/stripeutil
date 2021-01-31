@@ -78,12 +78,16 @@ func (s *Subscription) Cancel(st Stripe) error {
 	return nil
 }
 
-// Update will update the current Subscription in Stripe with the given request
-// Params.
+// Update will update the current Subscription in Stripe with the given Params.
 func (s *Subscription) Update(st Stripe, params Params) error {
 	s1, err := postSubscription(st, s.Endpoint(), params)
+
+	if err != nil {
+		return err
+	}
+
 	(*s) = (*s1)
-	return err
+	return nil
 }
 
 // Endpoint implements the Resource interface.

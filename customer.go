@@ -77,8 +77,11 @@ func (c *Customer) Load(s Stripe) error {
 
 // Update will update the current Customer in Stripe with the given Params.
 func (c *Customer) Update(s Stripe, params Params) error {
-	var err error
+	c1, err := postCustomer(s, c.Endpoint(), params)
 
-	c, err = postCustomer(s, c.Endpoint(), params)
-	return err
+	if err != nil {
+		return err
+	}
+	(*c) = (*c1)
+	return nil
 }
