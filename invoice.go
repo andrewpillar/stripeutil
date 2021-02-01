@@ -33,6 +33,10 @@ func RetrieveUpcomingInvoice(s Stripe, c *Customer) (*Invoice, error) {
 
 	defer resp.Body.Close()
 
+	if !respCode2xx(resp.StatusCode) {
+		return nil, s.Error(resp)
+	}
+
 	var inv Invoice
 
 	if err := json.NewDecoder(resp.Body).Decode(&inv.Invoice); err != nil {
