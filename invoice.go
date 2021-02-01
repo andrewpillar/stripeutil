@@ -25,20 +25,20 @@ var (
 // RetrieveUpcomingInvoice will retrieve the upcoming Invoice for the given
 // Customer.
 func RetrieveUpcomingInvoice(s Stripe, c *Customer) (*Invoice, error) {
-	inv := &Invoice{}
-
 	resp, err := s.Get(invoiceEndpoint + "/upcoming?customer=" + c.ID)
 
 	if err != nil {
-		return inv, err
+		return nil, err
 	}
 
 	defer resp.Body.Close()
 
+	var inv Invoice
+
 	if err := json.NewDecoder(resp.Body).Decode(&inv.Invoice); err != nil {
-		return inv, err
+		return nil, err
 	}
-	return inv, nil
+	return &inv, nil
 }
 
 // Endpoint implements the Resource interface.
