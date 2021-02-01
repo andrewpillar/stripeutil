@@ -28,7 +28,8 @@ type Client struct {
 }
 
 type Error struct {
-	Err struct {
+	Status string `json:"-"`
+	Err    struct {
 		Message string
 		Type    string
 	} `json:"error"`
@@ -171,7 +172,9 @@ func NewClient(version, secret string) Client {
 	}
 }
 
-func (e *Error) Error() string { return e.Err.Message }
+func (e *Error) Error() string {
+	return fmt.Errorf("stripeutil/stripe.go: stripe api error %s: %s", e.Status, e.Err.Message)
+}
 
 func (e ErrPaymentIntent) Error() string { return string(e.Status) }
 
@@ -242,12 +245,14 @@ func (c Client) do(method, uri string, r io.Reader) (*http.Response, error) {
 // Error decodes an error from the Stripe API from the given http.Response and
 // returns it as a pointer to Error.
 func (c Client) Error(resp *http.Response) error {
-	var e Error
+	e := &Error{
+		Status: resp.Status,
+	}
 
-	if err := json.NewDecoder(resp.Body).Decode(&e); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(e); err != nil {
 		return err
 	}
-	return fmt.Errorf("stripeutil/stripe.go: stripe api error %s: %s", resp.Status, e.Err.Message)
+	return e
 }
 
 // Get will send a GET request to the given URI of the Stripe API.
