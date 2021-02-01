@@ -173,7 +173,7 @@ func NewClient(version, secret string) Client {
 }
 
 func (e *Error) Error() string {
-	return fmt.Errorf("stripeutil/stripe.go: stripe api error %s: %s", e.Status, e.Err.Message)
+	return fmt.Sprintf("stripeutil/stripe.go: stripe api error %s: %s", e.Status, e.Err.Message)
 }
 
 func (e ErrPaymentIntent) Error() string { return string(e.Status) }
