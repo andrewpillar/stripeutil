@@ -71,5 +71,5 @@ func (i *Invoice) Load(s Stripe) error {
 	if !respCode2xx(resp.StatusCode) {
 		return s.Error(resp)
 	}
-	return json.NewDecoder(resp.Body).Decode(&i.Object)
+	return json.NewDecoder(resp.Body).Decode(&i.Invoice)
 }
