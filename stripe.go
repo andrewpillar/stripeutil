@@ -30,6 +30,7 @@ type Client struct {
 type Error struct {
 	Status string `json:"-"`
 	Err    struct {
+		Code    string
 		Message string
 		Type    string
 	} `json:"error"`
