@@ -149,5 +149,5 @@ func (s *Subscription) Load(st Stripe) error {
 	if !respCode2xx(resp.StatusCode) {
 		return st.Error(resp)
 	}
-	return json.NewDecoder(resp.Body).Decode(&s.Object)
+	return json.NewDecoder(resp.Body).Decode(&s)
 }
