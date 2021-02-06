@@ -97,7 +97,7 @@ func Test_Stripe(t *testing.T) {
 		PaymentMethod: &stripelib.PaymentMethod{},
 	}
 
-	json.NewDecoder(resp.Body).Decode(&pm.PaymentMethod)
+	json.NewDecoder(resp.Body).Decode(pm)
 
 	if err := pm.Attach(stripe, c); err != nil {
 		t.Fatal(err)

@@ -21,7 +21,7 @@ var (
 	paymentMethodEndpoint = "/v1/payment_methods"
 )
 
-func postPaymentMethod(s Stripe, uri string, params map[string]interface{}) (*PaymentMethod, error) {
+func postPaymentMethod(s *Stripe, uri string, params map[string]interface{}) (*PaymentMethod, error) {
 	pm := &PaymentMethod{
 		PaymentMethod: &stripe.PaymentMethod{},
 	}
@@ -44,7 +44,7 @@ func postPaymentMethod(s Stripe, uri string, params map[string]interface{}) (*Pa
 
 // RetrievePaymentMethod will get the PaymentMethod of the given ID from Stripe
 // and return it.
-func RetrievePaymentMethod(s Stripe, id string) (*PaymentMethod, error) {
+func RetrievePaymentMethod(s *Stripe, id string) (*PaymentMethod, error) {
 	pm := &PaymentMethod{
 		PaymentMethod: &stripe.PaymentMethod{
 			ID: id,
@@ -68,7 +68,7 @@ func RetrievePaymentMethod(s Stripe, id string) (*PaymentMethod, error) {
 }
 
 // Update will update the current PaymentMethod in Stripe with the given Params.
-func (pm *PaymentMethod) Update(s Stripe, params Params) error {
+func (pm *PaymentMethod) Update(s *Stripe, params Params) error {
 	var err error
 
 	pm, err = postPaymentMethod(s, pm.Endpoint(), params)
@@ -76,7 +76,7 @@ func (pm *PaymentMethod) Update(s Stripe, params Params) error {
 }
 
 // Attach will attach the current PaymentMethod to the given Customer.
-func (pm *PaymentMethod) Attach(s Stripe, c *Customer) error {
+func (pm *PaymentMethod) Attach(s *Stripe, c *Customer) error {
 	var err error
 
 	pm, err = postPaymentMethod(s, pm.Endpoint("attach"), Params{"customer": c.ID})
@@ -85,7 +85,7 @@ func (pm *PaymentMethod) Attach(s Stripe, c *Customer) error {
 
 // Detach will detach the current PaymentMethod from the Customer it was
 // previously attached to.
-func (pm *PaymentMethod) Detach(s Stripe) error {
+func (pm *PaymentMethod) Detach(s *Stripe) error {
 	_, err := postPaymentMethod(s, pm.Endpoint("detach"), nil)
 	return err
 }
@@ -97,14 +97,15 @@ func (pm *PaymentMethod) Endpoint(uris ...string) string {
 	if pm.ID != "" {
 		endpoint += "/" + pm.ID
 	}
+
 	if len(uris) > 0 {
-		endpoint += "/" + strings.Join(uris, "/")
+		endpoint += "/"
 	}
-	return endpoint
+	return endpoint + strings.Join(uris, "/")
 }
 
 // Load implements the Resource interface.
-func (pm *PaymentMethod) Load(s Stripe) error {
+func (pm *PaymentMethod) Load(s *Stripe) error {
 	resp, err := s.Client.Get(pm.Endpoint())
 
 	if err != nil {

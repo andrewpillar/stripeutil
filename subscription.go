@@ -29,7 +29,7 @@ var (
 	}
 )
 
-func postSubscription(st Stripe, uri string, params map[string]interface{}) (*Subscription, error) {
+func postSubscription(st *Stripe, uri string, params map[string]interface{}) (*Subscription, error) {
 	sub := &Subscription{}
 
 	resp, err := st.Post(uri, params)
@@ -50,13 +50,13 @@ func postSubscription(st Stripe, uri string, params map[string]interface{}) (*Su
 
 // CreateSubscription will create a new Subscription in Stripe with the given
 // request Params.
-func CreateSubscription(st Stripe, params Params) (*Subscription, error) {
+func CreateSubscription(st *Stripe, params Params) (*Subscription, error) {
 	return postSubscription(st, subscriptionEndpoint, params)
 }
 
 // Reactivate will reactivate the current subscription by setting the property
 // cancel_at_period_end to false. This will set the EndsAt field to be invalid.
-func (s *Subscription) Reactivate(st Stripe) error {
+func (s *Subscription) Reactivate(st *Stripe) error {
 	if err := s.Update(st, Params{"cancel_at_period_end": false}); err != nil {
 		return err
 	}
@@ -67,7 +67,7 @@ func (s *Subscription) Reactivate(st Stripe) error {
 // Cancel will cancel the current Subscription at the end of the Subscription
 // Period. This will set the EndsAt field to the CurrentPeriodEnd of the
 // Subscription.
-func (s *Subscription) Cancel(st Stripe) error {
+func (s *Subscription) Cancel(st *Stripe) error {
 	if err :=  s.Update(st, Params{"cancel_at_period_end": true}); err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func (s *Subscription) Cancel(st Stripe) error {
 }
 
 // Update will update the current Subscription in Stripe with the given Params.
-func (s *Subscription) Update(st Stripe, params Params) error {
+func (s *Subscription) Update(st *Stripe, params Params) error {
 	s1, err := postSubscription(st, s.Endpoint(), params)
 
 	if err != nil {
@@ -97,10 +97,11 @@ func (s *Subscription) Endpoint(uris ...string) string {
 	if s.ID != "" {
 		endpoint += "/" + s.ID
 	}
+
 	if len(uris) > 0 {
-		endpoint += "/" + strings.Join(uris, "/")
+		endpoint += "/"
 	}
-	return endpoint
+	return endpoint + strings.Join(uris, "/")
 }
 
 // WithinGrace will return true if the current Subscription has been canceled
@@ -137,7 +138,7 @@ func (s *Subscription) Valid() bool {
 }
 
 // Load implements the Resource interface.
-func (s *Subscription) Load(st Stripe) error {
+func (s *Subscription) Load(st *Stripe) error {
 	resp, err := st.Client.Get(s.Endpoint())
 
 	if err != nil {
@@ -149,5 +150,5 @@ func (s *Subscription) Load(st Stripe) error {
 	if !respCode2xx(resp.StatusCode) {
 		return st.Error(resp)
 	}
-	return json.NewDecoder(resp.Body).Decode(&s)
+	return json.NewDecoder(resp.Body).Decode(s)
 }

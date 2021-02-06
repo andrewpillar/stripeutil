@@ -20,7 +20,7 @@ import (
 // will be automatically configured to talk to the Stripe API with the
 // necessary headers.
 type Client struct {
-	http.Client
+	*http.Client
 
 	secret   string
 	endpoint string
@@ -55,7 +55,7 @@ type Resource interface {
 	// Load will use the given Stripe client to load in the resource from the
 	// Stripe API using the Resource's endpoint. This should overwrite the
 	// fields in the Resource with the decoded response from Stripe.
-	Load(Stripe) error
+	Load(s *Stripe) error
 }
 
 // Store provides an interface for storing and retrieving resources that have
@@ -79,37 +79,37 @@ type Store interface {
 	// Subscription returns the subscription for the given Customer. Whether or
 	// not the Customer has a subscription will be denoted by the returned bool
 	// value.
-	Subscription(*Customer) (*Subscription, bool, error)
+	Subscription(c *Customer) (*Subscription, bool, error)
 
 	// DefaultPaymentMethod returns the default payment method for the given
 	// Customer. Whether or not the Customer has a default payment method is
 	// denoted by the returned bool value.
-	DefaultPaymentMethod(*Customer) (*PaymentMethod, bool, error)
+	DefaultPaymentMethod(c *Customer) (*PaymentMethod, bool, error)
 
 	// Invoices returns all of the invoices for the given customer. The returned
 	// invoices should be sorted from newest to oldest.
-	Invoices(*Customer) ([]*Invoice, error)
+	Invoices(c *Customer) ([]*Invoice, error)
 
 	// PaymentMethods returns all of the payment methods that has been attached
 	// to the given Customer.
-	PaymentMethods(*Customer) ([]*PaymentMethod, error)
+	PaymentMethods(c *Customer) ([]*PaymentMethod, error)
 
 	// Put will put the given Resource into the underlying data store. If the
 	// given Resource already exists in the data store, then that should simply
 	// be updated. If the given Resource is the PaymentMethod resource, then a
 	// check should be done to ensure that only one PaymentMethod for a Customer
 	// is the default PaymentMethod.
-	Put(Resource) error
+	Put(r Resource) error
 
 	// Remove will remove the given Resource from the underlying data store. If
 	// the given Resource cannot be found then this returns nil.
-	Remove(Resource) error
+	Remove(r Resource) error
 }
 
 // Stripe provides a simple way of managing the flow of creating customers and
 // subscriptions, and for storing them in a data store.
 type Stripe struct {
-	Client
+	*Client
 	Store
 }
 
@@ -156,8 +156,8 @@ func respCode2xx(code int) bool { return code >= 200 && code < 300 }
 
 // New configures a new Stripe client with the given secret for authenticatio
 // and Store for storing/retrieving resources.
-func New(secret string, s Store) Stripe {
-	return Stripe{
+func New(secret string, s Store) *Stripe {
+	return &Stripe{
 		Store:  s,
 		Client: NewClient(stripe.APIVersion, secret),
 	}
@@ -165,8 +165,9 @@ func New(secret string, s Store) Stripe {
 
 // NewClient configures a new Client for interfacing with the Stripe API using
 // the given version, and secret for authentication.
-func NewClient(version, secret string) Client {
-	return Client{
+func NewClient(version, secret string) *Client {
+	return &Client{
+		Client:   http.DefaultClient,
 		secret:   secret,
 		endpoint: stripe.APIURL,
 		version:  version,
@@ -273,14 +274,14 @@ func (c Client) Delete(uri string) (*http.Response, error) {
 }
 
 // Post will send a POST request to the given URI of the Stripe API.
-func (s Stripe) Post(uri string, params Params) (*http.Response, error) {
+func (s *Stripe) Post(uri string, params Params) (*http.Response, error) {
 	return s.Client.Post(uri, params.Reader())
 }
 
 // Customer will get the Stripe customer by the given email. If a customer does
 // not exist in the underlying data store then one is created via Stripe and
 // subsequently stored in the underlying data store.
-func (s Stripe) Customer(email string) (*Customer, error) {
+func (s *Stripe) Customer(email string) (*Customer, error) {
 	c, ok, err := s.Store.LookupCustomer(email)
 
 	if err != nil {
@@ -321,7 +322,7 @@ func (s Stripe) Customer(email string) (*Customer, error) {
 // returned Subscription will be stored in the underlying data store. If the
 // payment for the Subscription fails then this will be returned via
 // ErrPaymentIntent.
-func (s Stripe) Subscribe(c *Customer, pm *PaymentMethod, params Params) (*Subscription, error) {
+func (s *Stripe) Subscribe(c *Customer, pm *PaymentMethod, params Params) (*Subscription, error) {
 	sub, ok, err := s.Subscription(c)
 
 	if err != nil {
@@ -388,7 +389,7 @@ func (s Stripe) Subscribe(c *Customer, pm *PaymentMethod, params Params) (*Subsc
 
 // Resubscribe will reactivate the given Customer's Subscription, if that
 // Subscription was canceled and lies within the grace period.
-func (s Stripe) Resubscribe(c *Customer) error {
+func (s *Stripe) Resubscribe(c *Customer) error {
 	sub, ok, err := s.Subscription(c)
 
 	if err != nil {
@@ -412,7 +413,7 @@ func (s Stripe) Resubscribe(c *Customer) error {
 // Unsubscribe will cancel the subscription for the given Customer if that
 // subscription exists, and is valid. This will cancel the subscription at the
 // period end for the customer, and update it in the underlying store.
-func (s Stripe) Unsubscribe(c *Customer) (*Subscription, error) {
+func (s *Stripe) Unsubscribe(c *Customer) (*Subscription, error) {
 	sub, ok, err := s.Subscription(c)
 
 	if err != nil {

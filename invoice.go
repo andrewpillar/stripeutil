@@ -24,7 +24,7 @@ var (
 
 // RetrieveUpcomingInvoice will retrieve the upcoming Invoice for the given
 // Customer.
-func RetrieveUpcomingInvoice(s Stripe, c *Customer) (*Invoice, error) {
+func RetrieveUpcomingInvoice(s *Stripe, c *Customer) (*Invoice, error) {
 	resp, err := s.Get(invoiceEndpoint + "/upcoming?customer=" + c.ID)
 
 	if err != nil {
@@ -52,14 +52,15 @@ func (i *Invoice) Endpoint(uris ...string) string {
 	if i.ID != "" {
 		endpoint += "/" + i.ID
 	}
+
 	if len(uris) > 0 {
-		endpoint += "/" + strings.Join(uris, "/")
+		endpoint += "/"
 	}
-	return endpoint
+	return endpoint + strings.Join(uris, "/")
 }
 
 // Load implements the Resource interface.
-func (i *Invoice) Load(s Stripe) error {
+func (i *Invoice) Load(s *Stripe) error {
 	resp, err := s.Client.Get(i.Endpoint())
 
 	if err != nil {

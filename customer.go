@@ -21,7 +21,7 @@ var (
 	customerEndpoint = "/v1/customers"
 )
 
-func postCustomer(s Stripe, uri string, params Params) (*Customer, error) {
+func postCustomer(s *Stripe, uri string, params Params) (*Customer, error) {
 	c := &Customer{}
 
 	resp, err := s.Post(uri, params)
@@ -42,7 +42,7 @@ func postCustomer(s Stripe, uri string, params Params) (*Customer, error) {
 
 // CreateCustomer creates a new Customer in Stripe with the given Params and
 // returns it.
-func CreateCustomer(s Stripe, params Params) (*Customer, error) {
+func CreateCustomer(s *Stripe, params Params) (*Customer, error) {
 	return postCustomer(s, customerEndpoint, params)
 }
 
@@ -53,14 +53,15 @@ func (c *Customer) Endpoint(uris ...string) string {
 	if c.ID != "" {
 		endpoint += "/" + c.ID
 	}
+
 	if len(uris) > 0 {
-		endpoint += "/" + strings.Join(uris, "/")
+		endpoint += "/"
 	}
-	return endpoint
+	return endpoint + strings.Join(uris, "/")
 }
 
 // Load implements the Resource interface.
-func (c *Customer) Load(s Stripe) error {
+func (c *Customer) Load(s *Stripe) error {
 	resp, err := s.Client.Get(c.Endpoint())
 
 	if err != nil {
@@ -76,7 +77,7 @@ func (c *Customer) Load(s Stripe) error {
 }
 
 // Update will update the current Customer in Stripe with the given Params.
-func (c *Customer) Update(s Stripe, params Params) error {
+func (c *Customer) Update(s *Stripe, params Params) error {
 	c1, err := postCustomer(s, c.Endpoint(), params)
 
 	if err != nil {
