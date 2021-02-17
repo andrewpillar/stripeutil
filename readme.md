@@ -28,7 +28,7 @@ to how this library would be used to implement a subscription flow,
         panic(err) // Don't actually do this.
     }
 
-    // Assume the payment method ID has been passed through the a client, as
+    // Assume the payment method ID has been passed through the client, as
     // opposed to being hardcoded.
     pm, err := stripeutil.RetrievePaymentMethod(stripe, "pm_123456")
 
@@ -38,8 +38,8 @@ to how this library would be used to implement a subscription flow,
 
     // Create a subscription for the given customer with the given payment
     // method.
-    sub, err := stripe.Subscribe(c, pm, Params{
-        "items": []Params{
+    sub, err := stripe.Subscribe(c, pm, stripeutil.Params{
+        "items": []stripeutil.Params{
             {"price": "price_123456"},
         },
     })
