@@ -368,6 +368,8 @@ func (s *Stripe) Subscribe(c *Customer, pm *PaymentMethod, params Params) (*Subs
 	statuses := map[stripe.PaymentIntentStatus]struct{}{
 		stripe.PaymentIntentStatusProcessing: {},
 		stripe.PaymentIntentStatusSucceeded:  {},
+		// Part of 3DS, so continue, and let them handle the rest of the flow.
+		stripe.PaymentIntentStatusRequiresAction: {},
 	}
 
 	if _, ok := statuses[sub.LatestInvoice.PaymentIntent.Status]; ok {
@@ -378,7 +380,6 @@ func (s *Stripe) Subscribe(c *Customer, pm *PaymentMethod, params Params) (*Subs
 		err = s.Store.Put(&Invoice{
 			Invoice: sub.LatestInvoice,
 		})
-
 		return sub, err
 	}
 	return sub, ErrPaymentIntent{
