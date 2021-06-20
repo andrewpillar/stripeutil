@@ -68,7 +68,7 @@ func (s *Subscription) Reactivate(st *Stripe) error {
 // Period. This will set the EndsAt field to the CurrentPeriodEnd of the
 // Subscription.
 func (s *Subscription) Cancel(st *Stripe) error {
-	if err :=  s.Update(st, Params{"cancel_at_period_end": true}); err != nil {
+	if err := s.Update(st, Params{"cancel_at_period_end": true}); err != nil {
 		return err
 	}
 	s.EndsAt = sql.NullTime{

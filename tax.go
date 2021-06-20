@@ -99,7 +99,7 @@ func (t *Taxes) loadIds(r io.Reader) ([]string, error) {
 	ids := make([]string, 0)
 
 	for {
-redo:
+	redo:
 		r, err := getr(br)
 
 		if err != nil {

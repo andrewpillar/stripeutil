@@ -165,7 +165,7 @@ func (p PSQL) getPaymentMethods(opts ...query.Option) ([]*PaymentMethod, error) 
 		}
 
 		if err := unmarshalPaymentMethodInfo(info, pm); err != nil {
-				return nil, err
+			return nil, err
 		}
 		pms = append(pms, pm)
 	}

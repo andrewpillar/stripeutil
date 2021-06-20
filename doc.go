@@ -11,21 +11,21 @@
 // to how this library would be used to implement a subscription flow,
 //
 //     stripe := stripeutil.New(os.Getenv("STRIPE_SECRET"), store)
-// 
+//
 //     c, err := stripe.Customer("me@example.com")
-// 
+//
 //     if err != nil {
 //         panic(err) // Don't actually do this.
 //     }
-// 
+//
 //     // Assume the payment method ID has been passed through the a client, as
 //     // opposed to being hardcoded.
 //     pm, err := stripeutil.RetrievePaymentMethod(stripe, "pm_123456")
-// 
+//
 //     if err != nil {
 //         panic(err) // Handle error properly.
 //     }
-// 
+//
 //     // Create a subscription for the given customer with the given payment
 //     // method.
 //     sub, err := stripe.Subscribe(c, pm, Params{
@@ -33,7 +33,7 @@
 //             {"price": "price_123456"},
 //         },
 //     })
-// 
+//
 //     if err != nil {
 //         panic(err) // Be more graceful when you do this.
 //     }
@@ -64,11 +64,11 @@
 // library,
 //
 //     c, err := stripe.Customer("me@example.com")
-// 
+//
 //     if err != nil {
 //         panic(err) // If a recover is used then a panic is fine right?
 //     }
-// 
+//
 //     if err := stripe.Unsubscribe(c); err != nil {
 //         panic(err) // Let's hope a recover is somewhere...
 //     }

@@ -26,7 +26,7 @@ func Test_LookupCustomer(t *testing.T) {
 	store, mock := newStore(t)
 	defer store.DB.Close()
 
-	tests := []struct{
+	tests := []struct {
 		email         string
 		expectedQuery string
 		expectedOk    bool
@@ -71,7 +71,7 @@ func Test_Subscription(t *testing.T) {
 	store, mock := newStore(t)
 	defer store.DB.Close()
 
-	tests := []struct{
+	tests := []struct {
 		c             *Customer
 		expectedQuery string
 		expectedOk    bool
@@ -120,7 +120,7 @@ func Test_DefaultPaymentMethod(t *testing.T) {
 	store, mock := newStore(t)
 	defer store.DB.Close()
 
-	tests := []struct{
+	tests := []struct {
 		c             *Customer
 		expectedQuery string
 		expectedOk    bool

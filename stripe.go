@@ -225,7 +225,7 @@ func (p Params) Encode() string {
 func (p Params) Reader() io.Reader { return strings.NewReader(p.Encode()) }
 
 func (c Client) do(method, uri string, r io.Reader) (*http.Response, error) {
-	req, err := http.NewRequest(method, c.endpoint + "/" + uri, r)
+	req, err := http.NewRequest(method, c.endpoint+"/"+uri, r)
 
 	if err != nil {
 		return nil, err
@@ -237,7 +237,7 @@ func (c Client) do(method, uri string, r io.Reader) (*http.Response, error) {
 		"DELETE": "application/json; charset=utf-8",
 	}
 
-	req.Header.Set("Authorization", "Bearer " + c.secret)
+	req.Header.Set("Authorization", "Bearer "+c.secret)
 	req.Header.Set("Content-Type", contentType[method])
 	req.Header.Set("Stripe-Version", c.version)
 

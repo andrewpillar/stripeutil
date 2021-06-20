@@ -11,7 +11,7 @@ import (
 )
 
 func Test_Params(t *testing.T) {
-	tests := []struct{
+	tests := []struct {
 		params   Params
 		expected string
 	}{
@@ -77,7 +77,7 @@ func Test_Stripe(t *testing.T) {
 		"card": Params{
 			"number":    "4242424242424242",
 			"exp_month": "12",
-			"exp_year":  strconv.FormatInt(int64(time.Now().Add(time.Hour * 24 * 365).Year()), 10),
+			"exp_year":  strconv.FormatInt(int64(time.Now().Add(time.Hour*24*365).Year()), 10),
 			"cvc":       "111",
 		},
 		"type": "card",
